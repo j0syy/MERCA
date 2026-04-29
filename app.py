@@ -148,19 +148,48 @@ def get_productos():
 @app.route("/api/productos", methods=["POST"])
 @login_required
 def add_producto():
-    data = request.json
-    required = ['nombre', 'costo', 'precio', 'stock']
-    if not all(k in data for k in required):
-        return jsonify({"error": "Faltan datos"}), 400
-    user_id = session['user_id']
-    with get_db() as conn:
-        conn.execute('''
-            INSERT INTO productos (user_id, nombre, categoria, costo, precio, stock, stock_min)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (user_id, data['nombre'], data.get('categoria', 'Otro'), data['costo'],
-              data['precio'], data['stock'], data.get('stock_min', 0)))
-        conn.commit()
-    return jsonify({"ok": True})
+    try:
+        data = request.json
+        required = ['nombre', 'costo', 'precio', 'stock']
+        
+        # Validar que existan todos los campos
+        if not all(k in data for k in required):
+            return jsonify({"error": "Faltan datos requeridos"}), 400
+        
+        # Validar y convertir datos
+        nombre = str(data['nombre']).strip()
+        if not nombre:
+            return jsonify({"error": "El nombre no puede estar vacío"}), 400
+        
+        try:
+            costo = float(data['costo'])
+            precio = float(data['precio'])
+            stock = int(data['stock'])
+            stock_min = int(data.get('stock_min', 0))
+        except (ValueError, TypeError):
+            return jsonify({"error": "Costo y precio deben ser números, stock debe ser entero"}), 400
+        
+        # Validaciones lógicas
+        if costo < 0 or precio < 0:
+            return jsonify({"error": "Costo y precio no pueden ser negativos"}), 400
+        if stock < 0:
+            return jsonify({"error": "El stock no puede ser negativo"}), 400
+        
+        user_id = session['user_id']
+        categoria = str(data.get('categoria', 'Otro')).strip()
+        
+        with get_db() as conn:
+            conn.execute('''
+                INSERT INTO productos (user_id, nombre, categoria, costo, precio, stock, stock_min)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (user_id, nombre, categoria, costo, precio, stock, stock_min))
+            conn.commit()
+        
+        return jsonify({"ok": True, "mensaje": "Producto guardado exitosamente"})
+    
+    except Exception as e:
+        print(f"Error en add_producto: {str(e)}")
+        return jsonify({"error": f"Error del servidor: {str(e)}"}), 500
 
 @app.route("/api/productos/<int:id>", methods=["PUT"])
 @login_required
