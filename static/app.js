@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════
-// MERCADITO — app.js FUNCIONAL (con showPage y todos los módulos)
+// MERCADITO — app.js 
 // ════════════════════════════════════════════════════════════
 
 const API = "";
