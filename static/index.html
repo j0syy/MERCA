@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MercaDito — UACJ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- LOGIN / REGISTRO -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-mark">M</div>
+      <h1>MercaDito</h1>
+      <p>Sistema de Gestión para Emprendedores · UACJ</p>
+    </div>
+
+    <!-- Formulario de Login (visible por defecto) -->
+    <div id="login-form">
+      <h2>Iniciar Sesión</h2>
+      <div id="login-err" class="login-err hidden">Usuario o contraseña incorrectos.</div>
+      <div class="field">
+        <label>Usuario</label>
+        <input type="text" id="login-user" placeholder="Ej. emprendedor1" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-accent" style="width:100%;justify-content:center;padding:13px;" onclick="doLogin()">Entrar</button>
+      <div class="login-hint">
+        ¿No tienes cuenta? <a href="#" id="show-register-link">Regístrate aquí</a>
+      </div>
+      <div class="uacj-tag">DMCU — Ciudad Universitaria · UACJ</div>
+    </div>
+
+    <!-- Formulario de Registro (oculto inicialmente) -->
+    <div id="register-form" style="display:none;">
+      <h2>Crear Cuenta</h2>
+      <div id="register-err" class="login-err hidden"></div>
+      <div class="field">
+        <label>Nombre (opcional)</label>
+        <input type="text" id="reg-nombre" placeholder="Tu nombre o negocio">
+      </div>
+      <div class="field">
+        <label>Usuario *</label>
+        <input type="text" id="reg-user" placeholder="Ej. emprendedor1" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Contraseña *</label>
+        <input type="password" id="reg-pass" placeholder="Mínimo 4 caracteres" autocomplete="new-password">
+      </div>
+      <button class="btn btn-accent" style="width:100%;justify-content:center;padding:13px;" onclick="doRegister()">Registrarse</button>
+      <div class="login-hint">
+        ¿Ya tienes cuenta? <a href="#" id="show-login-link">Inicia sesión</a>
+      </div>
+      <div class="uacj-tag">DMCU — Ciudad Universitaria · UACJ</div>
+    </div>
+  </div>
+</div>
+
+<!-- APP (igual que antes pero sin el campo role) -->
+<div id="app" class="hidden">
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-mark-sm">M</span>
+    <span>MercaDito</span>
+  </div>
+  <nav>
+    <div class="nav-section-title">Principal</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
+    </div>
+    <div class="nav-section-title">Gestión</div>
+    <div class="nav-item" onclick="showPage('inventario',this)">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+      <span>Inventario</span>
+    </div>
+    <div class="nav-item" onclick="showPage('ventas',this)">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+      <span>Ventas</span>
+    </div>
+    <div class="nav-section-title">Análisis</div>
+    <div class="nav-item" onclick="showPage('analisis',this)">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+      <span>Análisis</span>
+    </div>
+    <div class="nav-item" onclick="showPage('historial',this)">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span>Historial</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip" onclick="doLogout()">
+      <div class="avatar" id="sb-avatar">U</div>
+      <div class="user-info">
+        <div class="name" id="sb-name">Usuario</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Dashboard</div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span style="font-size:13px;color:var(--muted)" id="topbar-date"></span>
+      <button class="btn btn-outline btn-sm" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="content">
+    <div id="stock-alerts"></div>
+    <div class="kpi-grid">
+      <div class="kpi-card yellow"><div class="kpi-label">Ingresos Totales</div><div class="kpi-value" id="kpi-ingresos">$0</div><div class="kpi-sub">Total de ventas registradas</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Ganancia Neta</div><div class="kpi-value" id="kpi-ganancia">$0</div><div class="kpi-sub">Ingresos menos costos</div></div>
+      <div class="kpi-card blue"><div class="kpi-label">Productos</div><div class="kpi-value" id="kpi-productos">0</div><div class="kpi-sub">En catálogo activo</div></div>
+      <div class="kpi-card red"><div class="kpi-label">Ventas Hoy</div><div class="kpi-value" id="kpi-hoy">0</div><div class="kpi-sub">Transacciones del día</div></div>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card"><div class="chart-title">Ventas por día (últimos 7 días)</div><canvas id="chart-bar" height="200"></canvas></div>
+      <div class="chart-card"><div class="chart-title">Productos más vendidos</div><canvas id="chart-pie" height="200"></canvas></div>
+    </div>
+    <div class="table-card">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"><span style="font-family:var(--font-head);font-size:15px;font-weight:700;">Últimas Ventas</span></div>
+      <table><thead><tr><th>Producto</th><th>Cantidad</th><th>Total</th><th>Ganancia</th><th>Fecha</th></tr></thead><tbody id="dash-ventas-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- INVENTARIO -->
+  <div id="page-inventario" class="content hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+      <div><div style="font-size:13px;color:var(--muted);margin-bottom:4px;">Gestiona tu catálogo de productos</div></div>
+      <button class="btn btn-accent" onclick="openModal('add-product')"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Nuevo Producto</button>
+    </div>
+    <div class="table-card">
+      <table><thead><tr><th>Producto</th><th>Costo</th><th>Precio Venta</th><th>Stock</th><th>Margen</th><th>Acciones</th></tr></thead><tbody id="inv-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- VENTAS -->
+  <div id="page-ventas" class="content hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+      <div style="font-size:13px;color:var(--muted);">Registra una nueva transacción</div>
+      <button class="btn btn-accent" onclick="openModal('add-venta')"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Registrar Venta</button>
+    </div>
+    <div class="table-card">
+      <table><thead><tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Precio Unit.</th><th>Total</th><th>Ganancia</th><th>Fecha y Hora</th></tr></thead><tbody id="ventas-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ANÁLISIS -->
+  <div id="page-analisis" class="content hidden">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('por-producto',this)">Por Producto</div>
+      <div class="tab" onclick="switchTab('tendencias',this)">Tendencias</div>
+    </div>
+    <div id="tab-por-producto">
+      <div class="charts-grid" style="margin-bottom:20px;">
+        <div class="chart-card"><div class="chart-title">Ganancia por Producto</div><canvas id="chart-ganancia" height="220"></canvas></div>
+        <div class="chart-card"><div class="chart-title">Distribución de Ingresos</div><canvas id="chart-ingreso-pie" height="220"></canvas></div>
+      </div>
+      <div class="table-card">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);"><span style="font-family:var(--font-head);font-size:15px;font-weight:700;">Rentabilidad por Producto</span></div>
+        <table><thead><tr><th>Producto</th><th>Unidades Vendidas</th><th>Ingresos</th><th>Costos</th><th>Ganancia</th><th>Margen %</th></tr></thead><tbody id="analisis-body"></tbody></table>
+      </div>
+    </div>
+    <div id="tab-tendencias" class="hidden">
+      <div class="chart-card" style="margin-bottom:20px;"><div class="chart-title">Ventas por Hora del Día</div><canvas id="chart-hora" height="180"></canvas></div>
+      <div class="chart-card"><div class="chart-title">Ventas por Día de la Semana</div><canvas id="chart-diasem" height="180"></canvas></div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div id="page-historial" class="content hidden">
+    <div class="hist-filters" style="margin-bottom:18px;display:flex;gap:10px;">
+      <input type="date" id="hist-from" style="max-width:180px;" onchange="renderHistorial()">
+      <input type="date" id="hist-to" style="max-width:180px;" onchange="renderHistorial()">
+      <input type="text" id="hist-search" placeholder="Buscar producto..." style="max-width:220px;" oninput="renderHistorial()">
+    </div>
+    <div class="table-card">
+      <table><thead><tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Total</th><th>Ganancia</th><th>Fecha y Hora</th></tr></thead><tbody id="historial-body"></tbody></table>
+    </div>
+    <div style="padding:12px 16px;color:var(--muted);font-size:13px;border-top:1px solid var(--border);" id="hist-total"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODALES -->
+<div class="overlay hidden" id="modal-add-product">
+  <div class="modal"><div class="modal-header"><div class="modal-title" id="prod-modal-title">Nuevo Producto</div><button class="modal-close" onclick="closeModal('add-product')">✕</button></div>
+  <input type="hidden" id="prod-edit-id">
+  <div class="grid-2">
+    <div class="field" style="grid-column:1/-1;"><label>Nombre del Producto</label><input type="text" id="prod-nombre" placeholder="Ej. Aretes de plata"></div>
+    <div class="field"><label>Costo de Adquisición ($)</label><input type="number" id="prod-costo" placeholder="0.00" min="0" step="0.01"></div>
+    <div class="field"><label>Precio de Venta ($)</label><input type="number" id="prod-precio" placeholder="0.00" min="0" step="0.01"></div>
+    <div class="field"><label>Stock Inicial</label><input type="number" id="prod-stock" placeholder="0" min="0"></div>
+    <div class="field"><label>Stock Mínimo (Alerta)</label><input type="number" id="prod-min" placeholder="5" min="0"></div>
+    <div class="field" style="grid-column:1/-1;"><label>Categoría</label><select id="prod-cat"><option value="Joyería">Joyería / Accesorios</option><option value="Cosméticos">Cosméticos</option><option value="Electrodomésticos">Electrodomésticos</option><option value="Comida">Comida / Bebida</option><option value="Ropa">Ropa / Calzado</option><option value="Otro">Otro</option></select></div>
+  </div>
+  <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('add-product')">Cancelar</button><button class="btn btn-accent" onclick="saveProduct()">Guardar</button></div></div>
+</div>
+
+<div class="overlay hidden" id="modal-add-venta">
+  <div class="modal"><div class="modal-header"><div class="modal-title">Registrar Venta</div><button class="modal-close" onclick="closeModal('add-venta')">✕</button></div>
+  <div class="field"><label>Producto</label><select id="venta-producto" onchange="updateVentaCalc()"></select></div>
+  <div class="grid-2"><div class="field"><label>Cantidad</label><input type="number" id="venta-cant" value="1" min="1" oninput="updateVentaCalc()"></div><div class="field"><label>Precio Unitario ($)</label><input type="number" id="venta-precio" placeholder="0.00" min="0" step="0.01" oninput="updateVentaCalc()"></div></div>
+  <div class="card" style="background:var(--surface2);margin-bottom:4px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;"><span style="color:var(--muted);">Total Venta</span><span id="venta-total-display" style="font-weight:700;font-family:var(--font-head);">$0.00</span></div><div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--muted);">Ganancia estimada</span><span id="venta-ganancia-display" style="color:var(--success);font-weight:600;">$0.00</span></div></div>
+  <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('add-venta')">Cancelar</button><button class="btn btn-accent" onclick="saveVenta()">Registrar</button></div></div>
+</div>
+
+<div class="overlay hidden" id="modal-del-product">
+  <div class="modal" style="max-width:360px;"><div class="modal-header"><div class="modal-title">¿Eliminar producto?</div><button class="modal-close" onclick="closeModal('del-product')">✕</button></div><p style="color:var(--muted);font-size:14px;">Esta acción no se puede deshacer. Se eliminarán también las ventas asociadas.</p><div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('del-product')">Cancelar</button><button class="btn btn-danger" onclick="confirmDeleteProduct()">Eliminar</button></div></div>
+</div>
+
+<div id="toast-area"></div>
+<script src="app.js"></script>
+<script>
+  // Mostrar/ocultar formularios de login/registro
+  document.getElementById('show-register-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('register-form').style.display = 'block';
+  });
+  document.getElementById('show-login-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('register-form').style.display = 'none';
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('register-err').classList.add('hidden');
+    document.getElementById('login-err').classList.add('hidden');
+  });
+</script>
+</body>
+</html>
