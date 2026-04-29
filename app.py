@@ -7,9 +7,14 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder="static", static_url_path="")
-app.secret_key = os.urandom(24)
-CORS(app, supports_credentials=True)
+# ----- NUEVAS CONFIGURACIONES PARA HTTPS -----
+app.config.update(
+    SESSION_COOKIE_SECURE=True,        # Requiere HTTPS (necesario en Render)
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax'
+)
 
+app.secret_key = os.environ.get('211213', os.urandom(24))
 DATABASE = 'mercadito.db'
 
 def get_db():
