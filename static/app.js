@@ -2,11 +2,7 @@
 // MERCADITO — app.js (con registro y autenticación real)
 // ════════════════════════════════════════════════════════════
 
-const API = "";
-let products = [];
-let ventas   = [];
-let currentUser = null;
-let deleteProdId = null;
+const API = "";  
 
 async function api(method, path, body = null) {
   const opts = {
@@ -21,26 +17,20 @@ async function api(method, path, body = null) {
   return data;
 }
 
-// ─── REGISTRO ─────────────────────────────────────────────
+// --- REGISTRO ---
 async function doRegister() {
   const nombre = document.getElementById("reg-nombre").value.trim();
   const usuario = document.getElementById("reg-user").value.trim();
   const password = document.getElementById("reg-pass").value;
   const errDiv = document.getElementById("register-err");
   if (!usuario || !password) {
-    errDiv.textContent = "Usuario y contraseña son obligatorios.";
-    errDiv.classList.remove("hidden");
-    return;
-  }
-  if (password.length < 4) {
-    errDiv.textContent = "La contraseña debe tener al menos 4 caracteres.";
+    errDiv.textContent = "Usuario y contraseña requeridos";
     errDiv.classList.remove("hidden");
     return;
   }
   try {
     await api("POST", "/api/register", { usuario, password, nombre });
     alert("Registro exitoso. Ahora inicia sesión.");
-    // Cambiar a login
     document.getElementById("register-form").style.display = "none";
     document.getElementById("login-form").style.display = "block";
     document.getElementById("login-user").value = usuario;
@@ -52,17 +42,19 @@ async function doRegister() {
   }
 }
 
-// ─── LOGIN ────────────────────────────────────────────────
+// --- LOGIN ---
 async function doLogin() {
-  const usuario  = document.getElementById("login-user").value.trim();
+  const usuario = document.getElementById("login-user").value.trim();
   const password = document.getElementById("login-pass").value;
+  const errDiv = document.getElementById("login-err");
   try {
     const data = await api("POST", "/api/login", { usuario, password });
-    currentUser = data;
+    console.log("Login exitoso:", data);
     mostrarApp(data);
     await renderAll();
   } catch (e) {
-    document.getElementById("login-err").classList.remove("hidden");
+    console.error("Error login:", e);
+    errDiv.classList.remove("hidden");
   }
 }
 
@@ -79,28 +71,22 @@ function mostrarApp(user) {
 
 async function doLogout() {
   await api("POST", "/api/logout");
-  currentUser = null;
-  document.getElementById("app").classList.add("hidden");
-  document.getElementById("login-screen").classList.remove("hidden");
-  document.getElementById("login-user").value = "";
-  document.getElementById("login-pass").value = "";
-  document.getElementById("login-err").classList.add("hidden");
-  // Limpiar formulario registro
-  document.getElementById("reg-nombre").value = "";
-  document.getElementById("reg-user").value = "";
-  document.getElementById("reg-pass").value = "";
+  location.reload();  // recarga para volver al login
 }
 
 async function checkSession() {
   try {
     const data = await api("GET", "/api/session");
     if (data.autenticado) {
-      currentUser = { id: data.user_id, nombre: data.nombre };
-      mostrarApp(currentUser);
+      console.log("Sesión recuperada:", data);
+      mostrarApp({ nombre: data.nombre, usuario: data.usuario });
       await renderAll();
     }
-  } catch (_) {}
+  } catch (e) {
+    console.log("No hay sesión activa", e);
+  }
 }
+checkSession();
 
 // Event listeners para login con Enter
 document.getElementById("login-pass")?.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
