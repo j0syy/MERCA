@@ -69,7 +69,8 @@ def init_db():
             hashed = generate_password_hash("demo123")
             conn.execute("INSERT INTO users (usuario, password, nombre) VALUES (?, ?, ?)",
                          ('demo', hashed, 'Emprendedor Demo'))
-
+if os.path.exists(DATABASE):
+    os.remove(DATABASE)
 init_db()
 
 def login_required(f):
