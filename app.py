@@ -5,6 +5,7 @@ import os
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
+import pytz
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 # ----- NUEVAS CONFIGURACIONES PARA HTTPS -----
@@ -16,6 +17,9 @@ app.config.update(
 
 app.secret_key = os.environ.get('211213', os.urandom(24))
 DATABASE = 'mercadito.db'
+
+# Zona horaria: Juárez, Chihuahua (GMT-6)
+tz_juarez = pytz.timezone('America/Mexico_City')
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
@@ -99,8 +103,9 @@ def register():
         if existe:
             return jsonify({"error": "El usuario ya existe"}), 400
         hashed = generate_password_hash(password)
-        conn.execute("INSERT INTO users (usuario, password, nombre) VALUES (?, ?, ?)",
-                     (usuario, hashed, nombre))
+        created_at = datetime.now(tz_juarez).isoformat()  # Hora con zona horaria de Juárez
+        conn.execute("INSERT INTO users (usuario, password, nombre, created_at) VALUES (?, ?, ?, ?)",
+                     (usuario, hashed, nombre, created_at))
         conn.commit()
     return jsonify({"ok": True, "mensaje": "Usuario registrado. Ahora inicia sesión."})
 
@@ -267,7 +272,7 @@ def add_venta():
             return jsonify({"error": f"Stock insuficiente (disponible: {prod['stock']})"}), 400
         total = precio_unit * cantidad
         ganancia = (precio_unit - prod['costo']) * cantidad
-        fecha = datetime.now().isoformat()
+        fecha = datetime.now(tz_juarez).isoformat()  # Hora con zona horaria de Juárez
         conn.execute('''
             INSERT INTO ventas (user_id, producto_id, cantidad, precio_unit, total, ganancia, fecha)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -290,7 +295,7 @@ def dashboard():
         ingresos = conn.execute("SELECT COALESCE(SUM(total),0) as total FROM ventas WHERE user_id = ?", (user_id,)).fetchone()['total']
         ganancia = conn.execute("SELECT COALESCE(SUM(ganancia),0) as total FROM ventas WHERE user_id = ?", (user_id,)).fetchone()['total']
         productos_count = conn.execute("SELECT COUNT(*) as cnt FROM productos WHERE user_id = ?", (user_id,)).fetchone()['cnt']
-        hoy = datetime.now().strftime("%Y-%m-%d")
+        hoy = datetime.now(tz_juarez).strftime("%Y-%m-%d")  # Hora con zona horaria de Juárez
         ventas_hoy = conn.execute("SELECT COALESCE(SUM(cantidad),0) as cnt FROM ventas WHERE user_id = ? AND date(fecha) = ?", (user_id, hoy)).fetchone()['cnt']
         # stock bajo
         stock_bajo = conn.execute("SELECT nombre, stock FROM productos WHERE user_id = ? AND stock <= stock_min", (user_id,)).fetchall()
@@ -310,7 +315,7 @@ def dashboard():
             ORDER BY unidades DESC LIMIT 5
         ''', (user_id,)).fetchall()
         # últimos 7 días
-        hoy_date = datetime.now().date()
+        hoy_date = datetime.now(tz_juarez).date()  # Hora con zona horaria de Juárez
         dias_7 = []
         for i in range(6, -1, -1):
             dia = hoy_date - timedelta(days=i)
