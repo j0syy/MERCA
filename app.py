@@ -8,9 +8,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import pytz
 
 app = Flask(__name__, static_folder="static", static_url_path="")
-# ----- NUEVAS CONFIGURACIONES PARA HTTPS -----
+# -----  CONFIGURACIONES PARA HTTPS -----
 app.config.update(
-    SESSION_COOKIE_SECURE=True,        # Requiere HTTPS (necesario en Render)
+    SESSION_COOKIE_SECURE=True,       
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax'
 )
@@ -38,7 +38,7 @@ def init_db():
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
         ''')
-        # Productos ahora con user_id
+        # Productos 
         conn.execute('''
             CREATE TABLE IF NOT EXISTS productos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,7 +52,7 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
             )
         ''')
-        # Ventas con user_id (redundante pero facilita consultas)
+        # Ventas 
         conn.execute('''
             CREATE TABLE IF NOT EXISTS ventas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
